@@ -5,8 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "build": "rm -rf build/ && tsc",
-    "start": "node build/server.js",
-    "dev": "nodemon src/server.ts ",
+    "start": "node -r dotenv/config build/server.js dotenv_config_path=.env.prod",
+    "dev": "nodemon -r dotenv/config src/server.ts dotenv_config_path=.env.dev",
     "seed": "ts-node src/seeder.ts",
     "deploy": "liara deploy"
   },
