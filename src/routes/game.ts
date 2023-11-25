@@ -1,10 +1,19 @@
 import express from "express";
-import { answer, getGame, getGamePlayers } from "../controllers/game";
+import {
+  getAllGames,
+  seedGames,
+  gamePlayerList,
+  answerQuestion,
+  getGame,
+} from "../controllers/game";
 
 const gameRouter = express.Router();
 
-gameRouter.get("/get_game/:id", getGame);
-gameRouter.get("/get_players/:gameId", getGamePlayers);
-gameRouter.post("/answer", answer);
+gameRouter.get("/", getAllGames);
+gameRouter.get("/:id", getGame);
+gameRouter.get("/:id/players", gamePlayerList);
+gameRouter.post("/:id/answer", answerQuestion);
+
+gameRouter.get("/seed", seedGames);
 
 export default gameRouter;
