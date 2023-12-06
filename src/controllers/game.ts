@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import { faker } from "@faker-js/faker/locale/fa";
 import _, { random } from "lodash";
 import moment from "jalali-moment";
 import Game from "../models/Game";
-import { IMAGES } from "../../images";
+import { IMAGES } from "../images";
 import User from "../models/User";
 import { createPassword } from "../utils/password";
 import Question from "../models/Question";
@@ -30,7 +31,7 @@ export const seedGames = async (req: Request, res: Response) => {
       name: faker.name.fullName(),
       phone: faker.phone.number("0913#######"),
       point: _.random(0, 500),
-      avatar: _.sample(avatars.map((item) => item.url)),
+      avatar: _.sample(avatars.map((item) => item._id)),
       username: "User " + (i + 1),
       password: await createPassword("123456789"),
     });
@@ -56,7 +57,7 @@ export const seedGames = async (req: Request, res: Response) => {
 
     const players = [];
     for (let j = _.random(1, 50); j < _.random(55, 200); j++) {
-      players.push({ user: users[j]._id, point: _.random(0, 50), isUp: true });
+      players.push({ user: users[j]._id, point: 0, isUp: false });
     }
 
     const qs = [];
@@ -79,8 +80,11 @@ export const seedGames = async (req: Request, res: Response) => {
 };
 
 export const getAllGames = async (req: Request, res: Response) => {
-  const games = await Game.find();
-  res.status(200).json(games);
+  const games = await Game.find().populate("players.user");
+
+  res
+    .status(200)
+    .json(games.filter((game) => game.startTime > moment().unix()));
 };
 
 export const getGame = async (req: Request, res: Response) => {
@@ -110,20 +114,20 @@ export const answerQuestion = async (req: Request, res: Response) => {
 
     if (isItCorrect) {
       const currentPlayerPoint = game.players.find(
-        (item) => item.user == playerId
+        (item) => item._id == playerId
       ).point;
       await Game.updateOne(
-        { "players.user": playerId },
+        { "players._id": playerId },
         {
           $set: {
-            "players.$.points": currentPlayerPoint + 5,
+            "players.$.point": currentPlayerPoint + 5,
             "players.$.isUp": true,
           },
         }
       );
     } else {
       await Game.updateOne(
-        { "players.user": playerId },
+        { "players._id": playerId },
         {
           $set: { "players.$.isUp": false },
         }
@@ -131,5 +135,36 @@ export const answerQuestion = async (req: Request, res: Response) => {
     }
 
     res.status(200).json(nextQ);
+  }
+};
+
+export const registerGame = async (req: Request, res: Response) => {
+  const { userId, gameId, mode } = req.body;
+
+  const game = await Game.findOne({ _id: gameId });
+  if (game.startTime < moment().unix()) {
+    if (
+      game.players
+        .map((item) => item.user._id)
+        .includes(userId as Types.ObjectId)
+    ) {
+      await Game.updateOne(
+        { _id: gameId },
+        {
+          $pull: { "players.user": userId },
+        }
+      );
+    } else {
+      await Game.updateOne(
+        { _id: gameId },
+        {
+          $push: { players: { user: userId, point: 0, isUp: false } },
+        }
+      );
+    }
+
+    res.status(200).json("Done");
+  } else {
+    res.status(400).json({ error: "زمان ثبت نام گذشته است" });
   }
 };

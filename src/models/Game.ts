@@ -5,6 +5,7 @@ import User from "./User";
 export type GameStatus = "before" | "start" | "after";
 
 export type Player = {
+  _id: Types.ObjectId;
   user: Types.ObjectId;
   point: number;
   isUp: boolean;
@@ -46,14 +47,18 @@ const gameSchema: Schema = new mongoose.Schema<GameInterface>({
       },
     ],
   },
+  status: {
+    type: String,
+    required: true,
+  },
   questions: [{ type: Schema.Types.ObjectId, ref: "Question" }],
 });
 
-gameSchema.pre(["findOne"], function (next) {
+gameSchema.pre(["findOne", "find"], function (next) {
   this.populate({
     path: "players.user",
     model: User,
-    select: ["name", "_id", "avatar"],
+    select: ["_id", "avatar", "username"],
   });
   next();
 });

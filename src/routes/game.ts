@@ -5,7 +5,9 @@ import {
   gamePlayerList,
   answerQuestion,
   getGame,
+  registerGame,
 } from "../controllers/game";
+import { setGames } from "../crons";
 
 const gameRouter = express.Router();
 
@@ -13,7 +15,9 @@ gameRouter.get("/", getAllGames);
 gameRouter.get("/:id", getGame);
 gameRouter.get("/:id/players", gamePlayerList);
 gameRouter.post("/:id/answer", answerQuestion);
+gameRouter.post("/register_game", registerGame);
 
-gameRouter.get("/seed", seedGames);
+gameRouter.post("/seed", seedGames);
+gameRouter.post("/setGames", setGames);
 
 export default gameRouter;

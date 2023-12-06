@@ -1,7 +1,7 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import Avatar from "./Avatar";
 
 export interface UserInterface extends Document {
-  name: string;
   phone: string;
   point: number;
   avatar: Types.ObjectId;
@@ -10,10 +10,6 @@ export interface UserInterface extends Document {
 }
 
 const userSchema: Schema = new mongoose.Schema<UserInterface>({
-  name: {
-    type: String,
-    required: true,
-  },
   phone: {
     type: String,
     required: true,
@@ -34,6 +30,15 @@ const userSchema: Schema = new mongoose.Schema<UserInterface>({
     type: String,
     required: true,
   },
+});
+
+userSchema.pre(["findOne", "find"], function (next) {
+  this.populate({
+    path: "avatar",
+    model: Avatar,
+    select: ["_id", "url"],
+  });
+  next();
 });
 
 //@ts-ignore
