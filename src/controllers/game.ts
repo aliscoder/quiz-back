@@ -142,7 +142,7 @@ export const registerGame = async (req: Request, res: Response) => {
   const { userId, gameId, mode } = req.body;
 
   const game = await Game.findOne({ _id: gameId });
-  if (game.startTime < moment().unix()) {
+  if (game.startTime > moment().unix()) {
     if (
       game.players
         .map((item) => item.user._id)

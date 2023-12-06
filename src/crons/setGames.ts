@@ -21,7 +21,7 @@ export async function setGames() {
     const endTime = startTime + 100;
 
     const players = [];
-    for (let j = random(1, 50); j < random(55, 200); j++) {
+    for (let j = random(1, 5); j < random(6, 20); j++) {
       players.push({ user: users[j]._id, point: 0, isUp: false });
     }
 

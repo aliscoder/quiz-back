@@ -12,7 +12,7 @@ export const depositCoin = async (req: Request, res: Response) => {
   zarinpal
     .PaymentRequest({
       Amount: Number(amount), // In Tomans
-      CallbackURL: "localhost:3000/games/verify",
+      CallbackURL: "//:expo",
       Description: "pay coin",
     })
     .then(async (response) => {
@@ -22,7 +22,6 @@ export const depositCoin = async (req: Request, res: Response) => {
           userId,
           secret: response.authority,
         }).then(() => {
-          res.status(200).json({ url: response.url });
           res.status(200).json({ url: response.url });
         });
       }
