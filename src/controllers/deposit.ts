@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ZarinPalCheckout from "zarinpal-checkout";
 import Deposit from "../models/Deposit";
+import User from "../models/User";
 
 const zarinpal = ZarinPalCheckout.create(
   "0e9d5222-ac22-11e7-a1bb-000c295eb8fc",
@@ -12,7 +13,7 @@ export const depositCoin = async (req: Request, res: Response) => {
   zarinpal
     .PaymentRequest({
       Amount: Number(amount), // In Tomans
-      CallbackURL: "//:expo",
+      CallbackURL: "https://quiz.iran.liara.run/deposit/verify",
       Description: "pay coin",
     })
     .then(async (response) => {
@@ -43,6 +44,9 @@ export const verifyDeposit = async (req: Request, res: Response) => {
     })
     .then(async (response) => {
       if (response.status == 101) {
+        await User.findByIdAndUpdate(deposit.userId, {
+          $inc: { coin: deposit.amount },
+        });
         await Deposit.findOneAndUpdate(
           { secret: Authority },
           {

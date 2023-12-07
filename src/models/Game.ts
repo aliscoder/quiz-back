@@ -1,6 +1,7 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import Player from "./User";
 import User from "./User";
+import moment from "jalali-moment";
 
 export type GameStatus = "before" | "start" | "after";
 
@@ -34,6 +35,7 @@ const gameSchema: Schema = new mongoose.Schema<GameInterface>({
     type: Number,
     required: true,
   },
+
   image: {
     type: String,
     required: false,

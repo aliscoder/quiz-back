@@ -81,16 +81,17 @@ export const seedGames = async (req: Request, res: Response) => {
 
 export const getAllGames = async (req: Request, res: Response) => {
   const games = await Game.find().populate("players.user");
+  const currentGames = games
+    .filter((game) => game.startTime > moment().unix())
+    .map((game) => ({ ...game.toObject(), nowTime: moment().unix() }));
 
-  res
-    .status(200)
-    .json(games.filter((game) => game.startTime > moment().unix()));
+  res.status(200).json(currentGames);
 };
 
 export const getGame = async (req: Request, res: Response) => {
   const { id } = req.params;
   const game = await Game.findOne({ _id: id });
-  res.status(200).json(game);
+  res.status(200).json({ ...game.toObject(), nowTime: moment().unix() });
 };
 
 export const gamePlayerList = async (req: Request, res: Response) => {

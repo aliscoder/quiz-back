@@ -18,7 +18,7 @@ export async function setGames() {
 
   for (let i = 0; i < totalGamesCount; i++) {
     const startTime = startOfDay + i * 30 * 60;
-    const endTime = startTime + 100;
+    const endTime = startTime + 500;
 
     const players = [];
     for (let j = random(1, 5); j < random(6, 20); j++) {

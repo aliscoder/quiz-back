@@ -4,6 +4,19 @@ import User from "../models/User";
 import { checkPassword, createPassword } from "../utils/password";
 import Avatar from "../models/Avatar";
 
+// CHECK INITIAL STATUS
+export const refreshToken = async (req: Request, res: Response) => {
+  const { id: _id } = req.body;
+  const user = await User.findById(_id);
+
+  if (user.password) {
+    delete user.password;
+  }
+
+  const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY);
+  res.status(200).json({ token, user });
+};
+
 // SEND GENERETAED VERIFICATION CODE
 export const sendVerificationCode = async (req: Request, res: Response) => {
   const { phone } = req.body;
@@ -99,4 +112,19 @@ export const Login = async (req: Request, res: Response) => {
   }
 
   // }
+};
+
+export const ChangePassword = async (req: Request, res: Response) => {
+  const { userId, newPassword, currentPassword } = req.body;
+
+  const user = await User.findById(userId);
+
+  const isPasswordValid = await checkPassword(currentPassword, user.password);
+  if (!isPasswordValid) {
+    res.status(400).json({ error: "کلمه عبور فعلی نامعتبر است" });
+  } else {
+    user.password = await createPassword(newPassword);
+    await user.save();
+    res.status(200).json("Done");
+  }
 };

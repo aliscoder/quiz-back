@@ -7,6 +7,7 @@ export interface UserInterface extends Document {
   avatar: Types.ObjectId;
   username: string;
   password: string;
+  coin: number;
 }
 
 const userSchema: Schema = new mongoose.Schema<UserInterface>({
@@ -15,6 +16,10 @@ const userSchema: Schema = new mongoose.Schema<UserInterface>({
     required: true,
   },
   point: {
+    type: Number,
+    default: 0,
+  },
+  coin: {
     type: Number,
     default: 0,
   },
